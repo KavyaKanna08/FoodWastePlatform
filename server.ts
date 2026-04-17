@@ -161,7 +161,7 @@ const OrderSchema = new mongoose.Schema({
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   listingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Listing', required: true },
   amount: { type: Number, required: true },
-  paymentMethod: { type: String, enum: ['upi', 'scanner', 'bank'], required: true },
+  paymentMethod: { type: String, enum: ['upi', 'scanner', 'bank', 'cod'], required: true },
   status: { type: String, enum: ['pending', 'preparing', 'delivered', 'completed'], default: 'pending' },
   createdAt: { type: Date, default: Date.now },
 });

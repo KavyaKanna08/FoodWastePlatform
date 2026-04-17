@@ -18,6 +18,8 @@ import {
   CreditCard,
   QrCode,
   Building2,
+  Banknote,
+  CheckCircle2,
   DollarSign,
   Package,
   Clock,
@@ -254,8 +256,7 @@ export default function App() {
         body: JSON.stringify({ listingId: selectedItem._id, paymentMethod: method })
       });
       if (res.ok) {
-        alert('Payment Successful! Order Placed.');
-        setView('marketplace');
+        setView('orderSuccess');
         fetchListings();
         fetchConsumerStats();
       }
@@ -604,7 +605,8 @@ export default function App() {
                 {[
                   { id: 'upi', label: 'UPI Payment', icon: <CreditCard className="text-blue-500" /> },
                   { id: 'scanner', label: 'Scan QR Code', icon: <QrCode className="text-purple-500" /> },
-                  { id: 'bank', label: 'Bank Account', icon: <Building2 className="text-emerald-500" /> }
+                  { id: 'bank', label: 'Bank Account', icon: <Building2 className="text-emerald-500" /> },
+                  { id: 'cod', label: 'Cash on Delivery', icon: <Banknote className="text-amber-500" /> }
                 ].map(method => (
                   <button 
                     key={method.id}
@@ -651,6 +653,38 @@ export default function App() {
       </div>
     );
   };
+
+  const renderOrderSuccess = () => (
+    <div key="order-success" className="pt-32 pb-20 px-4 flex items-center justify-center min-h-[60vh]">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="max-w-md w-full bg-white p-12 rounded-[3rem] border border-gray-100 shadow-2xl text-center"
+      >
+        <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+          <CheckCircle2 size={48} />
+        </div>
+        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Success! Order Placed</h2>
+        <p className="text-gray-500 font-medium mb-10 leading-relaxed">
+          Your order has been successfully placed. You can track its status in your dashboard. Thank you for rescuing food!
+        </p>
+        <div className="space-y-4">
+          <button 
+            onClick={() => setView('dashboard')}
+            className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 uppercase tracking-widest text-sm"
+          >
+            Track Order
+          </button>
+          <button 
+            onClick={() => setView('marketplace')}
+            className="w-full py-4 bg-gray-50 text-gray-600 font-black rounded-2xl hover:bg-gray-100 transition-all uppercase tracking-widest text-sm"
+          >
+            Back to Marketplace
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
 
   const renderDashboard = () => (
     <div key="dashboard" className="pt-24 pb-20 px-4 max-w-7xl mx-auto">
@@ -1151,6 +1185,7 @@ export default function App() {
           {view === 'home' && renderHero()}
           {view === 'marketplace' && renderMarketplace()}
           {view === 'checkout' && renderCheckout()}
+          {view === 'orderSuccess' && renderOrderSuccess()}
           {view === 'dashboard' && renderDashboard()}
           {(view === 'login' || view === 'register') && renderAuthPage()}
         </AnimatePresence>
