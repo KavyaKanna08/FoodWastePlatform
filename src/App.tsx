@@ -99,7 +99,7 @@ interface Order {
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-  const [view, setView] = useState<'home' | 'marketplace' | 'dashboard' | 'checkout' | 'login' | 'register' | 'details' | 'add-listing'>('home');
+  const [view, setView] = useState<'home' | 'marketplace' | 'dashboard' | 'checkout' | 'login' | 'register' | 'details' | 'add-listing' | 'orderSuccess'>('home');
   const [role, setRole] = useState<'consumer' | 'vendor'>('consumer');
   const [listings, setListings] = useState<Listing[]>([]);
   const [selectedItem, setSelectedItem] = useState<Listing | null>(null);
@@ -133,6 +133,8 @@ export default function App() {
   }, [token, user?.role]);
 
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const fetchListings = async () => {
     try {
@@ -246,6 +248,7 @@ export default function App() {
 
   const handlePayment = async (method: string) => {
     if (!selectedItem || !token) return;
+    setPaymentLoading(true);
     try {
       const res = await fetch('/api/orders', {
         method: 'POST',
@@ -259,9 +262,15 @@ export default function App() {
         setView('orderSuccess');
         fetchListings();
         fetchConsumerStats();
+      } else {
+        const errData = await res.json();
+        alert(errData.error || 'Payment failed. Please try again.');
       }
     } catch (err) {
       console.error(err);
+      alert('Network error. Please check your connection.');
+    } finally {
+      setPaymentLoading(false);
     }
   };
 
@@ -641,11 +650,16 @@ export default function App() {
               </AnimatePresence>
 
               <button 
-                disabled={!selectedMethod}
+                disabled={!selectedMethod || paymentLoading}
                 onClick={() => handlePayment(selectedMethod!)}
-                className="w-full mt-8 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl"
+                className="w-full mt-8 py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl flex items-center justify-center"
               >
-                Complete Purchase
+                {paymentLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Processing...</span>
+                  </div>
+                ) : 'Complete Purchase'}
               </button>
             </div>
           </div>
@@ -664,9 +678,9 @@ export default function App() {
         <div className="w-24 h-24 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
           <CheckCircle2 size={48} />
         </div>
-        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Success! Order Placed</h2>
+        <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Order Placed Successfully!</h2>
         <p className="text-gray-500 font-medium mb-10 leading-relaxed">
-          Your order has been successfully placed. You can track its status in your dashboard. Thank you for rescuing food!
+          Your order has been confirmed. You've just saved some delicious food from going to waste!
         </p>
         <div className="space-y-4">
           <button 
