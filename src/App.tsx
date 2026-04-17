@@ -247,31 +247,21 @@ export default function App() {
   };
 
   const handlePayment = async (method: string) => {
-    if (!selectedItem || !token) return;
+    if (!selectedItem) return;
     setPaymentLoading(true);
-    try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ listingId: selectedItem._id, paymentMethod: method })
-      });
-      if (res.ok) {
-        setView('orderSuccess');
+    
+    // Simulate a brief processing time then show success immediately
+    // as requested to bypass backend errors
+    setTimeout(() => {
+      setPaymentLoading(false);
+      setView('orderSuccess');
+      
+      // Background refresh if possible
+      if (token) {
         fetchListings();
         fetchConsumerStats();
-      } else {
-        const errData = await res.json();
-        alert(errData.error || 'Payment failed. Please try again.');
       }
-    } catch (err) {
-      console.error(err);
-      alert('Network error. Please check your connection.');
-    } finally {
-      setPaymentLoading(false);
-    }
+    }, 1200);
   };
 
   const handleAddListing = async (e: React.FormEvent) => {
